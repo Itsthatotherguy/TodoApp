@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TodoApp.Database\TodoApp.Database.csproj" />
+    <ProjectReference Include="..\TodoApp.Domain\TodoApp.Domain.csproj" />
+    <ProjectReference Include="..\TodoApp.Models\TodoApp.Models.csproj" />
+    <ProjectReference Include="..\TodoApp.Utilities\TodoApp.Utilities.csproj" />
+  </ItemGroup>
+
+</Project>

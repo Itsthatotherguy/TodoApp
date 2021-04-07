@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "Application": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=TodoAppIntegrationTestsDb;Integrated Security=True;"
+  }
+}
