@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
+using System;
 using TodoApp.Domain.Entities;
-using TodoApp.Models.Todo.Requests;
-using TodoApp.Models.Todo.Responses;
+using TodoApp.Models.Todo;
 
 namespace TodoApp.Services.Profiles
 {
@@ -10,17 +10,23 @@ namespace TodoApp.Services.Profiles
         public TodoProfile()
         {
             // create todo
-            CreateMap<CreateTodoRequestModel, Todo>();
-            CreateMap<Todo, CreateTodoResponseModel>();
+            CreateMap<CreateTodoDto, Todo>();
 
             // list todos
-            CreateMap<Todo, ListTodosResponseModel>();
+            CreateMap<Todo, GetAllTodosDto>();
 
-            // read todo
-            CreateMap<Todo, ReadTodoResponseModel>();
+            // get one todo
+            CreateMap<Todo, GetOneTodoDto>();
 
             // update todo
-            CreateMap<UpdateTodoRequestModel, Todo>();
+            CreateMap<UpdateTodoDto, Todo>()
+                .ForMember(dest => dest.DueDate, opt => opt.Condition(src => src.DueDate > DateTime.MinValue));
+
+            CreateMap<GetOneTodoDto, UpdateTodoDto>();
+
+            // partial update todo
+            CreateMap<GetOneTodoDto, PartialUpdateTodoDto>();
+            CreateMap<PartialUpdateTodoDto, UpdateTodoDto>();
         }
     }
 }

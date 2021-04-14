@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
-using TodoApp.Models.Todo.Requests;
+using TodoApp.Models.Todo;
 using TodoApp.Services.Exceptions;
 using TodoApp.Services.TodoServices;
 
@@ -38,7 +39,7 @@ namespace TodoApp.API.Controllers
         {
             try
             {
-                var result = await _todoService.ReadTodo(id);
+                var result = await _todoService.GetOneTodo(id);
 
                 if (result.IsSuccess)
                 {
@@ -51,19 +52,19 @@ namespace TodoApp.API.Controllers
             }
             catch (DbTransactionException)
             {
-                return UnprocessableEntity("Error reading entity from DB");                
+                return UnprocessableEntity("Error reading entity from DB");
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateTodoRequestModel model)
-        {            
+        public async Task<IActionResult> Create(CreateTodoDto model)
+        {
             try
             {
                 var result = await _todoService.CreateTodo(model);
 
-                return result.IsSuccess 
-                    ? CreatedAtRoute("GetOne", new { Id = result.Value.Id }, result.Value) 
+                return result.IsSuccess
+                    ? CreatedAtRoute("GetOne", new { Id = result.Value.Id }, result.Value)
                     : BadRequest(result.Errors);
             }
             catch (DbTransactionException)
@@ -73,16 +74,48 @@ namespace TodoApp.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, UpdateTodoRequestModel model)
+        public async Task<IActionResult> Update(Guid id, UpdateTodoDto dto)
         {
-            if (id == Guid.Empty || id != model.Id)
+            if (id == Guid.Empty || id != dto.Id)
             {
                 return BadRequest("Id mismatch");
             }
 
             try
             {
-                var result = await _todoService.UpdateTodo(model);
+                var result = await _todoService.UpdateTodo(dto);
+
+                if (result.IsSuccess)
+                {
+                    return NoContent();
+                }
+                else
+                {
+                    return BadRequest(result.Errors);
+                }
+            }
+            catch (DbTransactionException)
+            {
+                return UnprocessableEntity("Error updating entity on DB");
+            }
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Patch(Guid id, JsonPatchDocument<PartialUpdateTodoDto> patchDoc)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest("No ID provided");
+            }
+
+            if (patchDoc == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var result = await _todoService.PartialUpdate(id, patchDoc);
 
                 if (result.IsSuccess)
                 {

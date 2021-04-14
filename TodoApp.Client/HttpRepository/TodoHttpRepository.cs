@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
-using TodoApp.Models.Todo.Requests;
-using TodoApp.Models.Todo.Responses;
+using TodoApp.Models.Todo;
 using TodoApp.Utilities;
 
 namespace TodoApp.Client.HttpRepository
@@ -20,7 +20,7 @@ namespace TodoApp.Client.HttpRepository
             _httpClient = httpClient;
         }
 
-        public async Task<Result<List<ListTodosResponseModel>>> GetTodos()
+        public async Task<Result<List<GetAllTodosDto>>> GetTodos()
         {
             var response = await _httpClient.GetAsync("api/Todo");
 
@@ -28,27 +28,23 @@ namespace TodoApp.Client.HttpRepository
 
             if (response.IsSuccessStatusCode)
             {
-                var todos = JsonSerializer.Deserialize<ListTodosResponseModel[]>(
-                    content,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                var todos = JsonConvert.DeserializeObject<GetAllTodosDto[]>(content);
 
-                return Result<List<ListTodosResponseModel>>.Success(todos.ToList());
+                return Result<List<GetAllTodosDto>>.Success(todos.ToList());
             }
             else
             {
-                var errors = JsonSerializer.Deserialize<string[]>(
-                    content,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                var errors = JsonConvert.DeserializeObject<string[]>(content);
 
-                return Result<List<ListTodosResponseModel>>.Failure(errors.ToList());
+                return Result<List<GetAllTodosDto>>.Failure(errors.ToList());
             }
             
         }
 
-        public async Task<Result> CreateTodo(CreateTodoRequestModel model)
+        public async Task<Result> CreateTodo(CreateTodoDto model)
         {
             var content = new StringContent(
-                JsonSerializer.Serialize(model),
+                JsonConvert.SerializeObject(model),
                 Encoding.UTF8,
                 "application/json");
 
@@ -56,9 +52,8 @@ namespace TodoApp.Client.HttpRepository
 
             if (!postResult.IsSuccessStatusCode)
             {
-                var errors = JsonSerializer.Deserialize<List<string>>(
-                    await postResult.Content.ReadAsStringAsync(), 
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                var errors = JsonConvert.DeserializeObject<List<string>>(
+                    await postResult.Content.ReadAsStringAsync());
 
                 return Result.Failure(errors);
             }
@@ -66,7 +61,7 @@ namespace TodoApp.Client.HttpRepository
             return Result.Success();
         }
 
-        public async Task<Result<ReadTodoResponseModel>> GetOneTodo(Guid id)
+        public async Task<Result<GetOneTodoDto>> GetOneTodo(Guid id)
         {
             var getResult = await _httpClient.GetAsync($"api/Todo/{id}");
 
@@ -74,24 +69,22 @@ namespace TodoApp.Client.HttpRepository
 
             if (getResult.IsSuccessStatusCode)
             {
-                var todo = JsonSerializer.Deserialize<ReadTodoResponseModel>(
-                    getContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                var todo = JsonConvert.DeserializeObject<GetOneTodoDto>(getContent);
 
-                return Result<ReadTodoResponseModel>.Success(todo);
+                return Result<GetOneTodoDto>.Success(todo);
             }
             else
             {
-                var errors = JsonSerializer.Deserialize<string[]>(
-                    getContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                var errors = JsonConvert.DeserializeObject<string[]>(getContent);
 
-                return Result<ReadTodoResponseModel>.Failure(errors.ToList());
+                return Result<GetOneTodoDto>.Failure(errors.ToList());
             }
         }
 
-        public async Task<Result> UpdateTodo(UpdateTodoRequestModel model)
+        public async Task<Result> UpdateTodo(UpdateTodoDto model)
         {
             var content = new StringContent(
-                JsonSerializer.Serialize(model),
+                JsonConvert.SerializeObject(model),
                 Encoding.UTF8,
                 "application/json");
 
@@ -99,9 +92,8 @@ namespace TodoApp.Client.HttpRepository
 
             if (!updateResult.IsSuccessStatusCode)
             {
-                var errors = JsonSerializer.Deserialize<string[]>(
-                    await updateResult.Content.ReadAsStringAsync(),
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                var errors = JsonConvert.DeserializeObject<string[]>(
+                    await updateResult.Content.ReadAsStringAsync());
 
                 return Result.Failure(errors.ToList());
             }
@@ -115,10 +107,56 @@ namespace TodoApp.Client.HttpRepository
 
             if (!deleteResult.IsSuccessStatusCode)
             {
-                var errors = JsonSerializer.Deserialize<List<string>>(
+                var errors = JsonConvert.DeserializeObject<List<string>>(
                     await deleteResult.Content.ReadAsStringAsync());
 
                 return Result.Failure(errors);
+            }
+
+            return Result.Success();
+        }
+
+        public async Task<Result> MarkTodoComplete(Guid id)
+        {
+            var patchDoc = new JsonPatchDocument<UpdateTodoDto>()
+                .Replace(todo => todo.IsCompleted, true);
+
+            var content = new StringContent(
+                JsonConvert.SerializeObject(patchDoc),
+                Encoding.UTF8,
+                "application/json");
+
+            var partialUpdateResult = await _httpClient.PatchAsync($"api/Todo/{id}", content);
+
+            if (!partialUpdateResult.IsSuccessStatusCode)
+            {
+                var errors = JsonConvert.DeserializeObject<string[]>(
+                    await partialUpdateResult.Content.ReadAsStringAsync());
+
+                return Result.Failure(errors.ToList());
+            }
+
+            return Result.Success();
+        }
+
+        public async Task<Result> MarkTodoIncomplete(Guid id)
+        {
+            var patchDoc = new JsonPatchDocument<UpdateTodoDto>()
+                .Replace(todo => todo.IsCompleted, false);
+
+            var content = new StringContent(
+                JsonConvert.SerializeObject(patchDoc),
+                Encoding.UTF8,
+                "application/json");
+
+            var partialUpdateResult = await _httpClient.PatchAsync($"api/Todo/{id}", content);
+
+            if (!partialUpdateResult.IsSuccessStatusCode)
+            {
+                var errors = JsonConvert.DeserializeObject<string[]>(
+                    await partialUpdateResult.Content.ReadAsStringAsync());
+
+                return Result.Failure(errors.ToList());
             }
 
             return Result.Success();

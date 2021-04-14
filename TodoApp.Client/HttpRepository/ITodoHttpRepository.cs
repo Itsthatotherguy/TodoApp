@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using TodoApp.Models.Todo.Requests;
-using TodoApp.Models.Todo.Responses;
+using TodoApp.Models.Todo;
 using TodoApp.Utilities;
 
 namespace TodoApp.Client.HttpRepository
 {
     public interface ITodoHttpRepository
     {
-        Task<Result<List<ListTodosResponseModel>>> GetTodos();
-        Task<Result<ReadTodoResponseModel>> GetOneTodo(Guid id);
-        Task<Result> CreateTodo(CreateTodoRequestModel model);
-        Task<Result> UpdateTodo(UpdateTodoRequestModel model);
+        Task<Result<List<GetAllTodosDto>>> GetTodos();
+        Task<Result<GetOneTodoDto>> GetOneTodo(Guid id);
+        Task<Result> CreateTodo(CreateTodoDto model);
+        Task<Result> UpdateTodo(UpdateTodoDto model);
+        Task<Result> MarkTodoComplete(Guid id);
+        Task<Result> MarkTodoIncomplete(Guid id);
         Task<Result> DeleteTodo(Guid id);
     }
 }

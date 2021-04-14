@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TodoApp.Models.Todo.Responses
+namespace TodoApp.Models.Todo
 {
-    public class CreateTodoResponseModel
+    public class PartialUpdateTodoDto
     {
-        public Guid Id { get; set; }
+        public bool IsCompleted { get; set; }
     }
 }

@@ -1,9 +1,9 @@
-﻿@page "/createTodo"
+﻿@page "/editTodo/{id:guid}"
 @using TodoApp.Client.Components
 @using TodoApp.Models.Todo 
 
 <PageHeader BackIcon="true" Ghost="true">
-    <PageHeaderTitle>Create Todo</PageHeaderTitle>
+    <PageHeaderTitle>Edit Todo</PageHeaderTitle>
 </PageHeader>
 
 <div Class="px-4">
@@ -12,5 +12,5 @@
         <ErrorListAlert Errors="_errors" />
     }
 
-    <TodoForm TModel="CreateTodoDto" Model="@_model" OnFinish="OnFinish" Loading="@_isLoading" />
+    <TodoForm TModel="UpdateTodoDto" Model="@_model" OnFinish="OnFinish" Loading="@_isLoading" />
 </div>

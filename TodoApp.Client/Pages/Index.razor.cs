@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TodoApp.Client.HttpRepository;
-using TodoApp.Models.Todo.Requests;
-using TodoApp.Models.Todo.Responses;
+using TodoApp.Models.Todo;
 using TodoApp.Utilities;
 
 namespace TodoApp.Client.Pages
@@ -19,13 +17,9 @@ namespace TodoApp.Client.Pages
         [Inject]
         public ITodoHttpRepository TodoRepository { get; set; }
 
-        private List<ListTodosResponseModel> _todoList { get; set; } = new List<ListTodosResponseModel>();
+        private List<GetAllTodosDto> _todoList { get; set; } = new List<GetAllTodosDto>();
         private bool _isLoading { get; set; } = true;
         private List<string> _errors = new List<string>();
-        private Guid _editId;
-        //private string _editCellName;
-        //private ListTodosResponseModel _previousTodoInfo;
-        IDictionary<Guid, (bool edit, ListTodosResponseModel model)> _editCache = new Dictionary<Guid, (bool edit, ListTodosResponseModel model)>();
 
         //private void StartEdit(Guid id, string editCellName)
         //{
@@ -51,13 +45,33 @@ namespace TodoApp.Client.Pages
         //    StateHasChanged();
         //}
 
+        private int SortText(string a, string b)
+        {
+            return String.Compare(a, b, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private int SortDate(DateTime? a, DateTime? b)
+        {
+            if (a == null || b == null)
+            {
+                return 0;
+            }
+
+            return DateTime.Compare((DateTime)a, (DateTime)b);
+        }
+
+        private int SortBool(bool a, bool b)
+        {
+            return String.Compare(a.ToString(), b.ToString(), StringComparison.Ordinal);
+        }
+
         private async Task<Result> UpdateTodo(Guid id)
         {
             _isLoading = true;
 
             var todo = GetTodo(id);
 
-            var model = new UpdateTodoRequestModel
+            var model = new UpdateTodoDto
             {
                 Id = id,
                 Title = todo.Title,
@@ -87,50 +101,6 @@ namespace TodoApp.Client.Pages
 
         private string FormatDate(DateTime? date) => ((DateTime)date).ToString("dd MMMM yyyy") ?? null;
 
-        private void StartEdit(Guid id)
-        {
-            _editId = id;
-            var data = _editCache[id];
-            data.edit = true;
-            _editCache[id] = data;
-        }
-
-        private void CancelEdit(Guid id)
-        {
-            var data = GetTodo(id);
-            _editCache[id] = new(false, data);
-        }
-
-        private void SaveEditKeyboard(KeyboardEventArgs eventArgs)
-        {
-            if (eventArgs.Key == "Enter")
-            {
-                SaveEdit(_editId);
-            }
-        }
-
-        private async void SaveEdit(Guid id)
-        {
-            var result = await UpdateTodo(id);
-
-            _editCache[id] = new(false, GetTodo(id));
-
-            if (result.IsFailure)
-            {
-                _errors = result.Errors;
-            }
-
-            StateHasChanged();
-        }
-
-        private void UpdateEditCache()
-        {
-            _todoList.ForEach(todo =>
-            {
-                _editCache[todo.Id] = new(false, todo);
-            });
-        }
-
         private async void DeleteTodo(Guid id)
         {
             _isLoading = true;
@@ -149,18 +119,71 @@ namespace TodoApp.Client.Pages
             StateHasChanged();
         }
 
+        private async void MarkAsCompleted(Guid id) 
+        {
+            _isLoading = true;
+
+            var result = await TodoRepository.MarkTodoComplete(id);
+
+            if (result.IsSuccess)
+            {
+                var todo = GetTodo(id);
+                todo.IsCompleted = true;
+            }
+            else
+            {
+                _errors = result.Errors;
+            }
+
+            _isLoading = false;
+
+            StateHasChanged();
+        }
+
+        private async void MarkAsIncomplete(Guid id)
+        {
+            _isLoading = true;
+
+            var result = await TodoRepository.MarkTodoIncomplete(id);
+
+            if (result.IsSuccess)
+            {
+                var todo = GetTodo(id);
+                todo.IsCompleted = false;
+            }
+            else
+            {
+                _errors = result.Errors;
+            }
+
+            _isLoading = false;
+
+            StateHasChanged();
+        }
+
         private void NavigateToCreateTodo()
         {
             NavigationManager.NavigateTo("/createTodo");
         }
 
+        private void NavigateToEditTodo(Guid id)
+        {
+            NavigationManager.NavigateTo($"/editTodo/{id.ToString()}");
+        }
+
         protected async override Task OnInitializedAsync()
         {
-            var result = await TodoRepository.GetTodos();
+            try
+            {
+                var result = await TodoRepository.GetTodos();
 
-            _todoList = result.Value;
-
-            UpdateEditCache();
+                _todoList = result.Value;
+            }
+            catch (Exception)
+            {
+                _todoList = new List<GetAllTodosDto>();
+                _errors = new List<string> { "Something went wrong. Please try again in a while." };
+            }
 
             _isLoading = false;
         }   
@@ -181,6 +204,6 @@ namespace TodoApp.Client.Pages
         //    return propertyInfo.GetValue(instance, null);
         //}
 
-        private ListTodosResponseModel GetTodo(Guid id) => _todoList.FirstOrDefault(todo => todo.Id == id);
+        private GetAllTodosDto GetTodo(Guid id) => _todoList.FirstOrDefault(todo => todo.Id == id);
     }
 }

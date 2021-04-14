@@ -38,7 +38,10 @@ namespace TodoApp.API
 
             services.AddDatabase(Configuration);
             services.AddApplicationServices();
-            services.AddControllers();
+
+            services.AddControllers()
+                .AddNewtonsoftJson();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "TodoApp.API", Version = "v1" });

@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TodoApp.Database.Contexts;
 using TodoApp.Domain.Entities;
-using TodoApp.Models.Todo.Requests;
-using TodoApp.Models.Todo.Responses;
+using TodoApp.Models.Todo;
 using TodoApp.Services.Exceptions;
 using TodoApp.Utilities;
 
@@ -23,12 +23,12 @@ namespace TodoApp.Services.TodoServices
             _mapper = mapper;
         }
 
-        public async Task<Result<CreateTodoResponseModel>> CreateTodo(CreateTodoRequestModel model)
+        public async Task<Result<GetOneTodoDto>> CreateTodo(CreateTodoDto model)
         {
             // check that todo with the same title doesnt exist
             if (await TitleAlreadyExists(model.Title))
             {
-                return Result<CreateTodoResponseModel>.Failure("A todo with that title already exists");
+                return Result<GetOneTodoDto>.Failure("A todo with that title already exists");
             }
 
             // create todo
@@ -46,8 +46,8 @@ namespace TodoApp.Services.TodoServices
             }
 
             // return response
-            return Result<CreateTodoResponseModel>.Success(
-                _mapper.Map<CreateTodoResponseModel>(todo));
+            return Result<GetOneTodoDto>.Success(
+                _mapper.Map<GetOneTodoDto>(todo));
         }
 
         public async Task<Result> DeleteTodo(Guid id)
@@ -81,7 +81,7 @@ namespace TodoApp.Services.TodoServices
             return Result.Success();
         }
 
-        public async Task<Result<IEnumerable<ListTodosResponseModel>>> ListTodos()
+        public async Task<Result<IEnumerable<GetAllTodosDto>>> ListTodos()
         {
             var todoList = await _dbContext.Todos.ToListAsync();
 
@@ -90,16 +90,46 @@ namespace TodoApp.Services.TodoServices
                 throw new DbTransactionException();
             }
 
-            return Result<IEnumerable<ListTodosResponseModel>>.Success(
-                _mapper.Map<IEnumerable<ListTodosResponseModel>>(todoList));
+            return Result<IEnumerable<GetAllTodosDto>>.Success(
+                _mapper.Map<IEnumerable<GetAllTodosDto>>(todoList));
         }
 
-        public async Task<Result<ReadTodoResponseModel>> ReadTodo(Guid id)
+        public async Task<Result> PartialUpdate(Guid id, JsonPatchDocument<PartialUpdateTodoDto> patchDocument)
+        {
+            // find existing todo
+            var todoResult = await GetOneTodo(id);
+
+            if (todoResult.IsFailure)
+            {
+                return Result.Failure(todoResult.Errors);
+            }
+
+            // map todo to partial update dto
+            var partialUpdateDto = _mapper.Map<PartialUpdateTodoDto>(todoResult.Value);
+
+            // apply patch doc
+            patchDocument.ApplyTo(partialUpdateDto);
+
+            // perform update
+            var updateDto = _mapper.Map<UpdateTodoDto>(todoResult.Value);
+            _mapper.Map(partialUpdateDto, updateDto);
+
+            try
+            {
+                return await UpdateTodo(updateDto);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<Result<GetOneTodoDto>> GetOneTodo(Guid id)
         {
             // check if id is provided
             if (id == Guid.Empty)
             {
-                return Result<ReadTodoResponseModel>.Failure("No ID provided");
+                return Result<GetOneTodoDto>.Failure("No ID provided");
             }
 
             // find existing todo
@@ -107,18 +137,18 @@ namespace TodoApp.Services.TodoServices
 
             if (todo == null)
             {
-                return Result<ReadTodoResponseModel>.Failure("Todo not found");
+                return Result<GetOneTodoDto>.Failure("Todo not found");
             }
 
             // return todo
-            return Result<ReadTodoResponseModel>.Success(
-                _mapper.Map<ReadTodoResponseModel>(todo));
+            return Result<GetOneTodoDto>.Success(
+                _mapper.Map<GetOneTodoDto>(todo));
         }
 
-        public async Task<Result> UpdateTodo(UpdateTodoRequestModel model)
+        public async Task<Result> UpdateTodo(UpdateTodoDto dto)
         {
             // find existing todo
-            var todo = await _dbContext.Todos.FirstOrDefaultAsync(todo => todo.Id == model.Id);
+            var todo = await _dbContext.Todos.FirstOrDefaultAsync(todo => todo.Id == dto.Id);
 
             if (todo == null)
             {
@@ -126,15 +156,15 @@ namespace TodoApp.Services.TodoServices
             }
 
             // check for duplicate title
-            if (model.Title != null 
-                && model.Title != todo.Title
-                && await TitleAlreadyExists(model.Title))
+            if (!string.IsNullOrWhiteSpace(dto.Title) 
+                && dto.Title != todo.Title
+                && await TitleAlreadyExists(dto.Title))
             {
                 return Result.Failure("A todo with that title already exists");
             }
 
             // update todo
-            _mapper.Map(model, todo);
+            _mapper.Map(dto, todo);
 
             // save to db
             try

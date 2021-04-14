@@ -1,0 +1,22 @@
+﻿@typeparam TModel 
+
+<Form Model="@Model"
+      Loading="@Loading"
+      OnFinish="HandleFinish"
+      LabelColSpan="2"
+      WrapperColSpan="10">
+    <FormItem Label="Title">
+        <Input @bind-Value="@context.Title" Placeholder="What do you want to call this todo?" />
+    </FormItem>
+    <FormItem Label="Description">
+        <TextArea @bind-Value="@context.Description" Placeholder="Does this todo have some extra information?" />
+    </FormItem>
+    <FormItem Label="Due Date">
+        <DatePicker TValue="DateTime?" Picker="@DatePickerType.Date" @bind-Value="@context.DueDate" AllowClear="false" />
+    </FormItem>
+    <FormItem WrapperColOffset="2" WrapperColSpan="10">
+        <Button Type="@ButtonType.Primary" HtmlType="submit">
+            Save
+        </Button>
+    </FormItem>
+</Form>

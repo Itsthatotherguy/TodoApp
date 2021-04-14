@@ -1,9 +1,30 @@
 ﻿@inherits LayoutComponentBase
+@inject IJSRuntime JS;
 
-<Layout Style="min-height: 100vh;">
+<Layout Class="min-vh-100">
     <Header Class="bg-white d-flex align-items-center">
         <Title Level="3" Class="mb-0">Todos</Title>
     </Header>
     <Content>@Body</Content>
-    <Footer> @(DateTime.Now.Year). Developed by Christiaan van der Merwe.</Footer>
+    <Footer Class="d-flex align-items-center">
+        <div class="flex-grow-1">
+            <Text>@(DateTime.Now.Year). Developed by Christiaan van der Merwe.</Text>
+        </div>
+        <Tooltip Title="@("Github Repo")">
+            <Button Shape="circle" Ghost="true" Class="text-dark border-dark" OnClick="NavigateToGithub">
+                <Icon Type="github" Theme="fill" />
+            </Button>
+        </Tooltip>
+    </Footer>
 </Layout>
+
+@code {
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+
+    private async void NavigateToGithub()
+    {
+        //NavigationManager.NavigateTo("https://github.com/Itsthatotherguy/TodoApp");
+        await JS.InvokeVoidAsync("open", "https://github.com/Itsthatotherguy/TodoApp", "_blank");
+    }
+}

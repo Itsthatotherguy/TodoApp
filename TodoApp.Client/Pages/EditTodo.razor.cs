@@ -2,12 +2,13 @@
 using Microsoft.AspNetCore.Components.Forms;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TodoApp.Client.HttpRepository;
 using TodoApp.Models.Todo;
 
 namespace TodoApp.Client.Pages
 {
-    public partial class CreateTodo
+    public partial class EditTodo
     {
         // di
         [Inject]
@@ -16,10 +17,33 @@ namespace TodoApp.Client.Pages
         [Inject]
         private NavigationManager NavigationManager { get; set; }
 
+        // params
+        [Parameter]
+        public Guid Id { get; set; }
+
         // fields
-        private CreateTodoDto _model = new CreateTodoDto();        
-        private bool _isLoading = false;
+        private UpdateTodoDto _model = new UpdateTodoDto();
+        private bool _isLoading = true;
         private List<string> _errors = new List<string>();
+
+        protected override async Task OnInitializedAsync()
+        {
+            var getResult = await TodoRepository.GetOneTodo(Id);
+
+            if (getResult.IsFailure)
+            {
+                NavigationManager.NavigateTo("/not-found");
+            }
+
+            _model = new UpdateTodoDto
+            {
+                Title = getResult.Value.Title,
+                Description = getResult.Value.Description,
+                DueDate = getResult.Value.DueDate
+            };
+
+            _isLoading = false;
+        }
 
         private async void OnFinish(EditContext editContext)
         {
@@ -27,7 +51,7 @@ namespace TodoApp.Client.Pages
 
             try
             {
-                var result = await TodoRepository.CreateTodo(_model);
+                var result = await TodoRepository.UpdateTodo(_model);
 
                 if (result.IsSuccess)
                 {

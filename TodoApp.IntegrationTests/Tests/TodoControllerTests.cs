@@ -6,8 +6,7 @@ using System.Net.Http;
 using System.Text;
 using TodoApp.IntegrationTests.Fixtures;
 using TodoApp.IntegrationTests.TestData;
-using TodoApp.Models.Todo.Requests;
-using TodoApp.Models.Todo.Responses;
+using TodoApp.Models.Todo;
 using Xunit;
 
 namespace TodoApp.IntegrationTests.Tests
@@ -24,7 +23,7 @@ namespace TodoApp.IntegrationTests.Tests
         public async void Create_ValidInput_ReturnsCreated()
         {
             // Arrange
-            var model = new CreateTodoRequestModel
+            var model = new CreateTodoDto
             {
                 Title = "Wash clothes",
                 Description = "I need clothes for the week",
@@ -40,7 +39,7 @@ namespace TodoApp.IntegrationTests.Tests
             var res = await _client.PostAsync("api/Todo", content);
             res.StatusCode.Should().Be(HttpStatusCode.Created);
 
-            var responseModel = JsonConvert.DeserializeObject<CreateTodoResponseModel>(
+            var responseModel = JsonConvert.DeserializeObject<GetOneTodoDto>(
                 await res.Content.ReadAsStringAsync());
 
             // Assert
@@ -54,7 +53,7 @@ namespace TodoApp.IntegrationTests.Tests
         public async void Create_InvalidInput_ReturnsBadRequest(string title, DateTime dueDate)
         {
             // Arrange
-            var model = new CreateTodoRequestModel
+            var model = new CreateTodoDto
             {
                 Title = title,
                 DueDate = dueDate
@@ -75,7 +74,7 @@ namespace TodoApp.IntegrationTests.Tests
         public async void Create_TitleThatAlreadyExists_ReturnsBadRequest()
         {
             // Arrange
-            var model = new CreateTodoRequestModel
+            var model = new CreateTodoDto
             {
                 Title = "Walk the dogs", // this todo already exists
                 DueDate = DateTime.Today
@@ -101,7 +100,7 @@ namespace TodoApp.IntegrationTests.Tests
             var res = await _client.GetAsync("api/Todo");
             res.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var responseModel = JsonConvert.DeserializeObject<ListTodosResponseModel[]>(
+            var responseModel = JsonConvert.DeserializeObject<GetAllTodosDto[]>(
                 await res.Content.ReadAsStringAsync());
 
             // Assert
@@ -117,7 +116,7 @@ namespace TodoApp.IntegrationTests.Tests
             // Arrange
             var getAllRes = await _client.GetAsync("api/Todo");
 
-            var getAllResponseModel = JsonConvert.DeserializeObject<ListTodosResponseModel[]>(
+            var getAllResponseModel = JsonConvert.DeserializeObject<GetAllTodosDto[]>(
                 await getAllRes.Content.ReadAsStringAsync());
 
             var todoId = getAllResponseModel[1].Id;
@@ -126,7 +125,7 @@ namespace TodoApp.IntegrationTests.Tests
             var res = await _client.GetAsync($"api/Todo/{todoId}");
             res.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var responseModel = JsonConvert.DeserializeObject<ReadTodoResponseModel>(
+            var responseModel = JsonConvert.DeserializeObject<GetOneTodoDto>(
                 await res.Content.ReadAsStringAsync());
 
             // Assert
@@ -162,16 +161,17 @@ namespace TodoApp.IntegrationTests.Tests
             // Arrange
             var getAllRes = await _client.GetAsync("api/Todo");
 
-            var getAllResponseModel = JsonConvert.DeserializeObject<ListTodosResponseModel[]>(
+            var getAllResponseModel = JsonConvert.DeserializeObject<GetAllTodosDto[]>(
                 await getAllRes.Content.ReadAsStringAsync());
 
             var todoId = getAllResponseModel[1].Id;
 
-            var model = new UpdateTodoRequestModel
+            var model = new UpdateTodoDto
             {
                 Id = todoId,
                 Title = "This is an updated title",
                 Description = "This is an updated description",
+                DueDate = DateTime.Now,
                 IsCompleted = true
             };
 
@@ -186,7 +186,7 @@ namespace TodoApp.IntegrationTests.Tests
 
             var getOneRes = await _client.GetAsync($"api/Todo/{todoId}");
 
-            var getOneResponseModel = JsonConvert.DeserializeObject<ReadTodoResponseModel>(
+            var getOneResponseModel = JsonConvert.DeserializeObject<GetOneTodoDto>(
                 await getOneRes.Content.ReadAsStringAsync());
 
             // Assert
@@ -202,12 +202,12 @@ namespace TodoApp.IntegrationTests.Tests
             // Arrange
             var getAllRes = await _client.GetAsync("api/Todo");
 
-            var getAllResponseModel = JsonConvert.DeserializeObject<ListTodosResponseModel[]>(
+            var getAllResponseModel = JsonConvert.DeserializeObject<GetAllTodosDto[]>(
                 await getAllRes.Content.ReadAsStringAsync());
 
             var todoId = getAllResponseModel[1].Id;
 
-            var model = new UpdateTodoRequestModel
+            var model = new UpdateTodoDto
             {
                 Id = todoId
             };
@@ -229,12 +229,12 @@ namespace TodoApp.IntegrationTests.Tests
             // Arrange
             var getAllRes = await _client.GetAsync("api/Todo");
 
-            var getAllResponseModel = JsonConvert.DeserializeObject<ListTodosResponseModel[]>(
+            var getAllResponseModel = JsonConvert.DeserializeObject<GetAllTodosDto[]>(
                 await getAllRes.Content.ReadAsStringAsync());
 
             var todoId = getAllResponseModel[1].Id;
 
-            var model = new UpdateTodoRequestModel
+            var model = new UpdateTodoDto
             {
                 Id = todoId
             };
@@ -256,12 +256,12 @@ namespace TodoApp.IntegrationTests.Tests
             // Arrange
             var getAllRes = await _client.GetAsync("api/Todo");
 
-            var getAllResponseModel = JsonConvert.DeserializeObject<ListTodosResponseModel[]>(
+            var getAllResponseModel = JsonConvert.DeserializeObject<GetAllTodosDto[]>(
                 await getAllRes.Content.ReadAsStringAsync());
 
             var todoId = getAllResponseModel[1].Id;
 
-            var model = new UpdateTodoRequestModel();
+            var model = new UpdateTodoDto();
 
             var content = new StringContent(
                 JsonConvert.SerializeObject(model),
@@ -280,13 +280,13 @@ namespace TodoApp.IntegrationTests.Tests
             // Arrange
             var getAllRes = await _client.GetAsync("api/Todo");
 
-            var getAllResponseModel = JsonConvert.DeserializeObject<ListTodosResponseModel[]>(
+            var getAllResponseModel = JsonConvert.DeserializeObject<GetAllTodosDto[]>(
                 await getAllRes.Content.ReadAsStringAsync());
 
             var firstTodoId = getAllResponseModel[0].Id;
             var secondTodoId = getAllResponseModel[1].Id;
 
-            var model = new UpdateTodoRequestModel
+            var model = new UpdateTodoDto
             {
                 Id = secondTodoId,
                 Title = getAllResponseModel[0].Title
@@ -309,15 +309,16 @@ namespace TodoApp.IntegrationTests.Tests
             // Arrange
             var getAllRes = await _client.GetAsync("api/Todo");
 
-            var getAllResponseModel = JsonConvert.DeserializeObject<ListTodosResponseModel[]>(
+            var getAllResponseModel = JsonConvert.DeserializeObject<GetAllTodosDto[]>(
                 await getAllRes.Content.ReadAsStringAsync());
 
-            var todoId = getAllResponseModel[0].Id;
+            var todo = getAllResponseModel[0];
 
-            var model = new UpdateTodoRequestModel
+            var model = new UpdateTodoDto
             {
-                Id = todoId,
-                Title = getAllResponseModel[0].Title
+                Id = todo.Id,
+                Title = getAllResponseModel[0].Title,
+                DueDate = todo.DueDate
             };
 
             var content = new StringContent(
@@ -326,9 +327,105 @@ namespace TodoApp.IntegrationTests.Tests
                 "application/json");
 
             // Act
-            var res = await _client.PutAsync($"api/Todo/{todoId}", content);
+            var res = await _client.PutAsync($"api/Todo/{todo.Id}", content);
             res.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
+        }
+        #endregion
+
+        #region PATCH api/Todo/{id}
+        [Fact]
+        [Trait("Endpoint", "PATCH api/Todo/{id}")]
+        public async void Patch_ValidInput_ReturnsNoContent()
+        {
+            // Arrange
+            var getAllRes = await _client.GetAsync("api/Todo");
+
+            var getAllResponseModel = JsonConvert.DeserializeObject<GetAllTodosDto[]>(
+                await getAllRes.Content.ReadAsStringAsync());
+
+            var todoId = getAllResponseModel[1].Id;
+
+            var patchDoc = new[]
+                {
+                    new {
+                    value = "true",
+                    path = "/isCompleted",
+                    op = "replace"
+                }
+            };          
+
+            var content = new StringContent(
+                JsonConvert.SerializeObject(patchDoc),
+                Encoding.UTF8,
+                "application/json");
+
+            // Act
+            var res = await _client.PatchAsync($"api/Todo/{todoId}", content);
+            res.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+            var getOneRes = await _client.GetAsync($"api/Todo/{todoId}");
+
+            var getOneResponseModel = JsonConvert.DeserializeObject<GetOneTodoDto>(
+                await getOneRes.Content.ReadAsStringAsync());
+
+            // Assert
+            getOneResponseModel.IsCompleted.Should().BeTrue();
+        }
+
+        [Fact]
+        [Trait("Endpoint", "PATCH api/Todo/{id}")]
+        public async void Patch_EmptyId_ReturnsBadRequest()
+        {
+            // Arrange
+            var todoId = Guid.Empty;
+
+            var patchDoc = new[]
+                {
+                    new {
+                    value = "true",
+                    path = "/isCompleted",
+                    op = "replace"
+                }
+            };
+
+            var content = new StringContent(
+                JsonConvert.SerializeObject(patchDoc),
+                Encoding.UTF8,
+                "application/json");
+
+            // Act
+            var res = await _client.PatchAsync($"api/Todo/{todoId}", content);
+            res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        [Trait("Endpoint", "PATCH api/Todo/{id}")]
+        public async void Patch_InvalidPatchDoc_ReturnsBadRequest()
+        {
+            // Arrange
+            var getAllRes = await _client.GetAsync("api/Todo");
+
+            var getAllResponseModel = JsonConvert.DeserializeObject<GetAllTodosDto[]>(
+                await getAllRes.Content.ReadAsStringAsync());
+
+            var todoId = getAllResponseModel[1].Id;
+
+            var patchDoc = new
+            {
+                value = "true",
+                path = "/1sCompl3t3d",
+                op = "replace"
+            };
+
+            var content = new StringContent(
+                JsonConvert.SerializeObject(patchDoc),
+                Encoding.UTF8,
+                "application/json");
+
+            // Act
+            var res = await _client.PatchAsync($"api/Todo/{todoId}", content);
+            res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
         #endregion
 
@@ -340,7 +437,7 @@ namespace TodoApp.IntegrationTests.Tests
             // Arrange
             var getAllRes = await _client.GetAsync("api/Todo");
 
-            var getAllResponseModel = JsonConvert.DeserializeObject<ListTodosResponseModel[]>(
+            var getAllResponseModel = JsonConvert.DeserializeObject<GetAllTodosDto[]>(
                 await getAllRes.Content.ReadAsStringAsync());
 
             var todoId = getAllResponseModel[1].Id;
@@ -350,7 +447,7 @@ namespace TodoApp.IntegrationTests.Tests
             res.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
             getAllRes = await _client.GetAsync("api/Todo");
-            getAllResponseModel = JsonConvert.DeserializeObject<ListTodosResponseModel[]>(
+            getAllResponseModel = JsonConvert.DeserializeObject<GetAllTodosDto[]>(
                 await getAllRes.Content.ReadAsStringAsync());
             getAllResponseModel.Should().HaveCount(1);
 
