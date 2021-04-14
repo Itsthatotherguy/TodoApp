@@ -6,11 +6,24 @@ using System.Threading.Tasks;
 
 namespace TodoApp.Models.Todo.Responses
 {
-    public record ListTodosResponseModel
+    [Serializable]
+    public class ListTodosResponseModel
     {
-        public Guid Id { get; init; }
-        public string Title { get; init; }
-        public string Description { get; init; }
-        public bool IsCompleted { get; init; }
+        public Guid Id { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public DateTime? DueDate { get; set; }
+        public bool IsCompleted { get; set; }
+
+        public ListTodosResponseModel DeepCopy()
+        {
+            return new ListTodosResponseModel
+            {
+                Id = Id,
+                Title = Title,
+                Description = Description,
+                IsCompleted = IsCompleted
+            };
+        }
     }
 }

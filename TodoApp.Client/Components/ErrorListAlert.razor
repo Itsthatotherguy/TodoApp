@@ -1,0 +1,8 @@
+﻿<Alert Type="@AlertType.Error" Message="The following errors occurred" Class="mb-4">
+    <ul class="mb-0">
+        @foreach (var error in Errors)
+        {
+            <li>@error.ToString()</li>
+        }
+    </ul>
+</Alert>

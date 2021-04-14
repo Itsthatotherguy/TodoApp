@@ -283,12 +283,41 @@ namespace TodoApp.IntegrationTests.Tests
             var getAllResponseModel = JsonConvert.DeserializeObject<ListTodosResponseModel[]>(
                 await getAllRes.Content.ReadAsStringAsync());
 
-            var todoId = getAllResponseModel[1].Id;
+            var firstTodoId = getAllResponseModel[0].Id;
+            var secondTodoId = getAllResponseModel[1].Id;
+
+            var model = new UpdateTodoRequestModel
+            {
+                Id = secondTodoId,
+                Title = getAllResponseModel[0].Title
+            };
+
+            var content = new StringContent(
+                JsonConvert.SerializeObject(model),
+                Encoding.UTF8,
+                "application/json");
+
+            // Act
+            var res = await _client.PutAsync($"api/Todo/{secondTodoId}", content);
+            res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        [Trait("Endpoint", "PUT api/Todo/{id}")]
+        public async void Update_TitleAlreadyExistsForSameTodo_ReturnsOk()
+        {
+            // Arrange
+            var getAllRes = await _client.GetAsync("api/Todo");
+
+            var getAllResponseModel = JsonConvert.DeserializeObject<ListTodosResponseModel[]>(
+                await getAllRes.Content.ReadAsStringAsync());
+
+            var todoId = getAllResponseModel[0].Id;
 
             var model = new UpdateTodoRequestModel
             {
                 Id = todoId,
-                Title = "Walk the dogs"
+                Title = getAllResponseModel[0].Title
             };
 
             var content = new StringContent(
@@ -298,7 +327,8 @@ namespace TodoApp.IntegrationTests.Tests
 
             // Act
             var res = await _client.PutAsync($"api/Todo/{todoId}", content);
-            res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            res.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
         }
         #endregion
 

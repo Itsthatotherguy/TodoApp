@@ -57,7 +57,7 @@ namespace TodoApp.API.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateTodoRequestModel model)
-        {
+        {            
             try
             {
                 var result = await _todoService.CreateTodo(model);

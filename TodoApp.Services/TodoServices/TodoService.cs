@@ -25,14 +25,6 @@ namespace TodoApp.Services.TodoServices
 
         public async Task<Result<CreateTodoResponseModel>> CreateTodo(CreateTodoRequestModel model)
         {
-            // validate model
-            var modelValidation = new CreateTodoRequestModelValidator().Validation(model);
-
-            if (modelValidation.IsFailure)
-            {
-                return Result<CreateTodoResponseModel>.Failure(modelValidation.Errors);
-            }
-
             // check that todo with the same title doesnt exist
             if (await TitleAlreadyExists(model.Title))
             {
@@ -125,14 +117,6 @@ namespace TodoApp.Services.TodoServices
 
         public async Task<Result> UpdateTodo(UpdateTodoRequestModel model)
         {
-            // model validation
-            var modelValidation = new UpdateTodoRequestModelValidator().Validation(model);
-
-            if (modelValidation.IsFailure)
-            {
-                return Result.Failure(modelValidation.Errors);
-            }
-
             // find existing todo
             var todo = await _dbContext.Todos.FirstOrDefaultAsync(todo => todo.Id == model.Id);
 
@@ -142,7 +126,9 @@ namespace TodoApp.Services.TodoServices
             }
 
             // check for duplicate title
-            if (model.Title != null && await TitleAlreadyExists(model.Title))
+            if (model.Title != null 
+                && model.Title != todo.Title
+                && await TitleAlreadyExists(model.Title))
             {
                 return Result.Failure("A todo with that title already exists");
             }

@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace TodoApp.Models.Todo.Responses
 {
-    public record CreateTodoResponseModel
+    public class CreateTodoResponseModel
     {
-        public Guid Id { get; init; }
+        public Guid Id { get; set; }
     }
 }

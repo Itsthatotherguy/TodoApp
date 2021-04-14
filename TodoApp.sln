@@ -3,23 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31025.194
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.Domain", "TodoApp.Domain\TodoApp.Domain.csproj", "{706DE6DF-3CFE-443E-A5CA-DE9156E07129}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Domain", "TodoApp.Domain\TodoApp.Domain.csproj", "{706DE6DF-3CFE-443E-A5CA-DE9156E07129}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.Database", "TodoApp.Database\TodoApp.Database.csproj", "{E5330A99-9FC0-4128-B758-1A946356664C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Database", "TodoApp.Database\TodoApp.Database.csproj", "{E5330A99-9FC0-4128-B758-1A946356664C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.API", "TodoApp.API\TodoApp.API.csproj", "{E93E23BC-9BFE-4C33-B7FC-1BB36B182A42}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.API", "TodoApp.API\TodoApp.API.csproj", "{E93E23BC-9BFE-4C33-B7FC-1BB36B182A42}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.Models", "TodoApp.Models\TodoApp.Models.csproj", "{5A9EDBB4-60DC-47CA-822F-AE8089C19E9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Models", "TodoApp.Models\TodoApp.Models.csproj", "{5A9EDBB4-60DC-47CA-822F-AE8089C19E9A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Logic", "Logic", "{F93C247A-A625-4728-8C64-1F93F930A5E6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8C6881E0-171E-440D-B4DA-96630C59D79C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.Services", "TodoApp.Services\TodoApp.Services.csproj", "{5D1DAA60-A548-4F70-8CD2-F78D255A6DDC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Services", "TodoApp.Services\TodoApp.Services.csproj", "{5D1DAA60-A548-4F70-8CD2-F78D255A6DDC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.Utilities", "TodoApp.Utilities\TodoApp.Utilities.csproj", "{C4C3E601-7F07-4D8D-9984-6ABF5A8BCD81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Utilities", "TodoApp.Utilities\TodoApp.Utilities.csproj", "{C4C3E601-7F07-4D8D-9984-6ABF5A8BCD81}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.IntegrationTests", "TodoApp.IntegrationTests\TodoApp.IntegrationTests.csproj", "{51AECBFC-BB5B-4B53-A4FA-BE6933A67863}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.IntegrationTests", "TodoApp.IntegrationTests\TodoApp.IntegrationTests.csproj", "{51AECBFC-BB5B-4B53-A4FA-BE6933A67863}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Client", "TodoApp.Client\TodoApp.Client.csproj", "{4AAD39BB-A5AC-43CA-B4A3-83D32BD48EF8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +57,10 @@ Global
 		{51AECBFC-BB5B-4B53-A4FA-BE6933A67863}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51AECBFC-BB5B-4B53-A4FA-BE6933A67863}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51AECBFC-BB5B-4B53-A4FA-BE6933A67863}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AAD39BB-A5AC-43CA-B4A3-83D32BD48EF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AAD39BB-A5AC-43CA-B4A3-83D32BD48EF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AAD39BB-A5AC-43CA-B4A3-83D32BD48EF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AAD39BB-A5AC-43CA-B4A3-83D32BD48EF8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,6 +73,7 @@ Global
 		{5D1DAA60-A548-4F70-8CD2-F78D255A6DDC} = {F93C247A-A625-4728-8C64-1F93F930A5E6}
 		{C4C3E601-7F07-4D8D-9984-6ABF5A8BCD81} = {F93C247A-A625-4728-8C64-1F93F930A5E6}
 		{51AECBFC-BB5B-4B53-A4FA-BE6933A67863} = {8C6881E0-171E-440D-B4DA-96630C59D79C}
+		{4AAD39BB-A5AC-43CA-B4A3-83D32BD48EF8} = {F93C247A-A625-4728-8C64-1F93F930A5E6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {418A00BD-9008-4215-8721-0E42C7002870}

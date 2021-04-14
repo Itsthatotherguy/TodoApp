@@ -1,0 +1,114 @@
+﻿@page "/"
+@using TodoApp.Client.Components
+
+<PageHeader Ghost="true">
+    <PageHeaderExtra>
+        <Button Type="@ButtonType.Primary" OnClick="NavigateToCreateTodo">Add</Button>
+    </PageHeaderExtra>
+</PageHeader>
+
+@*<div Class="px-4">
+        <Table TItem="ListTodosResponseModel" DataSource="@TodoList" Loading="IsLoading">
+            <Column Title="Title" @bind-Field="@context.Title"></Column>
+            <Column Title="Completed" @bind-Field="@context.IsCompleted">
+                @(context.IsCompleted ? "Yes" : "No")
+            </Column>
+            <ActionColumn Style="text-align: end;">
+                <Button OnClick="()=>NavigateToViewTodo(context.Id)">View</Button>
+            </ActionColumn>
+        </Table>
+    </div>*@
+
+<div class="px-4">
+    @if (_errors.Count > 0)
+    {
+        <ErrorListAlert Errors="_errors" />
+    }
+    <Table Loading="_isLoading" DataSource="_todoList">
+        <ChildContent Context="data">
+            <Column Title="Title" TData="string">
+                @if (!_editCache[data.Id].edit)
+                {
+                    @data.Title
+                }
+                else
+                {
+                    <Input @bind-Value="_editCache[data.Id].model.Title" @onkeypress="SaveEditKeyboard" />
+                }
+            </Column>
+            <Column Title="Description" TData="string">
+                @if (!_editCache[data.Id].edit)
+                {
+                    @data.Description
+                }
+                else
+                {
+                    <Input @bind-Value="_editCache[data.Id].model.Description" @onkeyup="SaveEditKeyboard" />
+                }
+            </Column>
+            <Column Title="Due Date" TData="DateTime?">
+                @if (!_editCache[data.Id].edit)
+                {
+                    @FormatDate(data.DueDate)
+                }
+                else
+                {
+                    <DatePicker TValue="DateTime?"
+                                Picker="@DatePickerType.Date"
+                                @bind-Value="@_editCache[data.Id].model.DueDate"
+                                AllowClear="false" />
+                }
+            </Column>
+            <Column Title="Completed" TData="bool">
+                <Switch @bind-Value="data.IsCompleted" OnChange="() => ToggleCompleted(data.Id)" />
+            </Column>
+            <ActionColumn Class="text-right">
+                <Space>
+                    @if (!_editCache[data.Id].edit)
+                    {
+                        <SpaceItem>
+                            <Button @onclick="() => StartEdit(data.Id)">Edit</Button>
+                        </SpaceItem>
+                        <SpaceItem>
+                            <Popconfirm Title="Are you sure you want to delete this todo?"
+                                        OnConfirm="() => DeleteTodo(data.Id)"
+                                        OkText="Yes"
+                                        CancelText="No">
+                                <Button>Delete</Button>
+                            </Popconfirm>
+                        </SpaceItem>
+                    }
+                    else
+                    {
+                        <SpaceItem>
+                            <Text Type="warning">You are busy editing this todo</Text>
+                        </SpaceItem>
+                        <SpaceItem>
+                            <Button @onclick="() => SaveEdit(data.Id)">Save</Button>
+                        </SpaceItem>
+                        <SpaceItem>
+                            <Button @onclick="() => CancelEdit(data.Id)">Cancel</Button>
+                        </SpaceItem>
+                    }
+                </Space>
+            </ActionColumn>
+        </ChildContent>
+    </Table>
+</div>
+
+<style>
+    .editable-cell-value-wrap {
+        padding: 5px 12px;
+        cursor: pointer;
+    }
+
+        .editable-cell-value-wrap:hover {
+            padding: 4px 11px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+        }
+</style>
+
+@code {
+}
+
