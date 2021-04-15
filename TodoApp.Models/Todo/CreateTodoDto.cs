@@ -10,8 +10,8 @@ namespace TodoApp.Models.Todo
 {
     public class CreateTodoDto : IEditableTodoDto
     {
-        [RequiredDate(ErrorMessage = "Please provide a valid date")]
-        public DateTime? DueDate { get; set; }
+        [RequiredDate]
+        public DateTime? DueDate { get; set; } = DateTime.Now;
 
         [Required(ErrorMessage = "Please provide a title")]
         public string Title { get; set; }

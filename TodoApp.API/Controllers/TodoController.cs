@@ -78,7 +78,7 @@ namespace TodoApp.API.Controllers
         {
             if (id == Guid.Empty || id != dto.Id)
             {
-                return BadRequest("Id mismatch");
+                return BadRequest(new string[] { "Id empty or mismatched" });
             }
 
             try

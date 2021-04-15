@@ -51,6 +51,7 @@ namespace TodoApp.Client.Pages
 
             try
             {
+                _model.Id = Id;
                 var result = await TodoRepository.UpdateTodo(_model);
 
                 if (result.IsSuccess)

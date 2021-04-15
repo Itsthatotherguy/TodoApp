@@ -8,184 +8,50 @@
     </PageHeaderExtra>
 </PageHeader>
 
-@*<div Class="px-4">
-        <Table TItem="ListTodosResponseModel" DataSource="@TodoList" Loading="IsLoading">
-            <Column Title="Title" @bind-Field="@context.Title"></Column>
-            <Column Title="Completed" @bind-Field="@context.IsCompleted">
-                @(context.IsCompleted ? "Yes" : "No")
-            </Column>
-            <ActionColumn Style="text-align: end;">
-                <Button OnClick="()=>NavigateToViewTodo(context.Id)">View</Button>
-            </ActionColumn>
-        </Table>
-    </div>*@
-
 <div class="px-4">
     @if (_errors.Count > 0)
     {
         <ErrorListAlert Errors="_errors" />
     }
-    @*<Table Loading="_isLoading" DataSource="_todoList">
-        <ChildContent Context="data">
-            <Column Title="Title" TData="string">
-                @if (!_editCache[data.Id].edit)
-                {
-                    @data.Title
-                }
-                else
-                {
-                    <Input @bind-Value="_editCache[data.Id].model.Title" @onkeypress="SaveEditKeyboard" />
-                }
-            </Column>
-            <Column Title="Description" TData="string">
-                @if (!_editCache[data.Id].edit)
-                {
-                    @data.Description
-                }
-                else
-                {
-                    <Input @bind-Value="_editCache[data.Id].model.Description" @onkeyup="SaveEditKeyboard" />
-                }
-            </Column>
-            <Column Title="Due Date" TData="DateTime?">
-                @if (!_editCache[data.Id].edit)
-                {
-                    @FormatDate(data.DueDate)
-                }
-                else
-                {
-                    <DatePicker TValue="DateTime?"
-                                Picker="@DatePickerType.Date"
-                                @bind-Value="@_editCache[data.Id].model.DueDate"
-                                AllowClear="false" />
-                }
-            </Column>
-            <Column Title="Completed" TData="bool">
-                <Switch @bind-Value="data.IsCompleted" OnChange="() => ToggleCompleted(data.Id)" />
-            </Column>
-            <ActionColumn Class="text-right">
-                <Space>
-                    @if (!_editCache[data.Id].edit)
-                    {
-                        <SpaceItem>
-                            <Button @onclick="() => StartEdit(data.Id)">Edit</Button>
-                        </SpaceItem>
-                        <SpaceItem>
-                            <Popconfirm Title="Are you sure you want to delete this todo?"
-                                        OnConfirm="() => DeleteTodo(data.Id)"
-                                        OkText="Yes"
-                                        CancelText="No">
-                                <Button>Delete</Button>
-                            </Popconfirm>
-                        </SpaceItem>
-                    }
-                    else
-                    {
-                        <SpaceItem>
-                            <Text Type="warning">You are busy editing this todo</Text>
-                        </SpaceItem>
-                        <SpaceItem>
-                            <Button @onclick="() => SaveEdit(data.Id)">Save</Button>
-                        </SpaceItem>
-                        <SpaceItem>
-                            <Button @onclick="() => CancelEdit(data.Id)">Cancel</Button>
-                        </SpaceItem>
-                    }
-                </Space>
-            </ActionColumn>
-        </ChildContent>
-    </Table>*@
-<Table TItem="GetAllTodosDto" Loading="_isLoading" DataSource="_todoList">
-    <Column @bind-Field="@context.Title" SorterCompare="SortText">
-        <Text Delete="@context.IsCompleted" Disabled="@context.IsCompleted">@context.Title</Text>
-    </Column>
-    <Column @bind-Field="@context.Description" SorterCompare="SortText">
-        <Text Delete="@context.IsCompleted" Disabled="@context.IsCompleted">@context.Description</Text>
-    </Column>
-    <Column Title="Due Date" @bind-Field="@context.DueDate" SorterCompare="SortDate">
-        <Text Delete="@context.IsCompleted" Disabled="@context.IsCompleted">@FormatDate(context.DueDate)</Text>
-    </Column>
-    <Column Title="Completed" @bind-Field="@context.IsCompleted" SorterCompare="SortBool" Class="text-center">
-        <Checkbox Disabled="true" Checked="@context.IsCompleted" />
-    </Column>
-    <ActionColumn Class="text-right">
-        <Dropdown Trigger="@(new TriggerType[] { TriggerType.Click })" Placement="@PlacementType.BottomRight">
-            <Overlay>
-                <Menu>
-                    <MenuItem Icon="edit" OnClick="() => NavigateToEditTodo(context.Id)">Edit</MenuItem>
+    <Table TItem="GetAllTodosDto" Loading="_isLoading" DataSource="_todoList" HidePagination="true">
+        <Column @bind-Field="@context.Title" SorterCompare="SortText">
+            <Text Delete="@context.IsCompleted" Disabled="@context.IsCompleted">@context.Title</Text>
+        </Column>
+        <Column @bind-Field="@context.Description" SorterCompare="SortText">
+            <Text Delete="@context.IsCompleted" Disabled="@context.IsCompleted">@context.Description</Text>
+        </Column>
+        <Column Title="Due Date" @bind-Field="@context.DueDate" SorterCompare="SortDate">
+            <Text Delete="@context.IsCompleted" Disabled="@context.IsCompleted">@FormatDate(context.DueDate)</Text>
+        </Column>
+        <Column Title="Completed" @bind-Field="@context.IsCompleted" SorterCompare="SortBool" Class="text-center">
+            <Checkbox Disabled="true" Checked="@context.IsCompleted" />
+        </Column>
+        <ActionColumn Class="text-right">
+            <Dropdown Trigger="@(new TriggerType[] { TriggerType.Click })" Placement="@PlacementType.BottomRight">
+                <Overlay>
+                    <Menu>
+                        <MenuItem Icon="edit" OnClick="() => NavigateToEditTodo(context.Id)">Edit</MenuItem>
 
-                    @if (!context.IsCompleted)
-                    {
-                        <MenuItem Icon="check-circle" OnClick="() => MarkAsCompleted(context.Id)">Mark Complete</MenuItem>
-                    }
-                    else
-                    {
-                        <MenuItem Icon="close-circle" OnClick="() => MarkAsIncomplete(context.Id)">Mark Incomplete</MenuItem>
-                    }
+                        @if (!context.IsCompleted)
+                        {
+                            <MenuItem Icon="check-circle" OnClick="() => MarkAsCompleted(context.Id)">Mark Complete</MenuItem>
+                        }
+                        else
+                        {
+                            <MenuItem Icon="close-circle" OnClick="() => MarkAsIncomplete(context.Id)">Mark Incomplete</MenuItem>
+                        }
 
-                    <MenuDivider />
-                    <MenuItem Icon="delete" OnClick="() => DeleteTodo(context.Id)">Delete</MenuItem>
-                </Menu>
-            </Overlay>
-            <ChildContent>
-                <Tooltip Title="@("Options")">
-                    <Button Icon="more" />
-                </Tooltip>
-            </ChildContent>
-        </Dropdown>
-        @*<Space>
-            <SpaceItem>
-                @if (!context.IsCompleted)
-                {
-                    <Popconfirm Title="Are you sure you want to mark this todo as completed?"
-                                OnConfirm="() => MarkAsCompleted(context.Id)"
-                                OkText="Yes"
-                                CancelText="No">
-                        <Button Type="primary">
-                            <Icon Type="check-circle" Theme="outline" />
-                            Mark Todo Complete
-                        </Button>
-                    </Popconfirm>
-                }
-                else
-                {
-                    <Popconfirm Title="Are you sure you want to mark this todo as incomplete?"
-                                OnConfirm="() => MarkAsIncomplete(context.Id)"
-                                OkText="Yes"
-                                CancelText="No">
-                        <Button Danger>
-                            <Icon Type="close-circle" Theme="outline" />
-                            Mark Todo Incomplete
-                        </Button>
-                    </Popconfirm>
-                }
-            </SpaceItem>
-            <SpaceItem>
-                <Popconfirm Title="Are you sure you want to delete this todo?"
-                            OnConfirm="() => DeleteTodo(context.Id)"
-                            OkText="Yes"
-                            CancelText="No">
-                    <Button>Delete</Button>
-                </Popconfirm>
-            </SpaceItem>
-        </Space>*@
-    </ActionColumn>
-</Table>
+                        <MenuDivider />
+                        <MenuItem Icon="delete" OnClick="() => DeleteTodo(context.Id)">Delete</MenuItem>
+                    </Menu>
+                </Overlay>
+                <ChildContent>
+                    <Tooltip Title="@("Options")">
+                        <Button Icon="more" />
+                    </Tooltip>
+                </ChildContent>
+            </Dropdown>
+        </ActionColumn>
+    </Table>
 </div>
-
-<style>
-    .editable-cell-value-wrap {
-        padding: 5px 12px;
-        cursor: pointer;
-    }
-
-        .editable-cell-value-wrap:hover {
-            padding: 4px 11px;
-            border: 1px solid #d9d9d9;
-            border-radius: 4px;
-        }
-</style>
-
-@code {
-}
 

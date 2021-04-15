@@ -92,6 +92,8 @@ namespace TodoApp.Client.HttpRepository
 
             if (!updateResult.IsSuccessStatusCode)
             {
+                var test = await updateResult.Content.ReadAsStringAsync();
+
                 var errors = JsonConvert.DeserializeObject<string[]>(
                     await updateResult.Content.ReadAsStringAsync());
 
