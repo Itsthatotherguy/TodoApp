@@ -17,7 +17,7 @@ namespace TodoApp.Client.Pages
         private NavigationManager NavigationManager { get; set; }
 
         // fields
-        private CreateTodoDto _model = new CreateTodoDto();        
+        private CreateTodoDto _model = new CreateTodoDto();
         private bool _isLoading = false;
         private List<string> _errors = new List<string>();
 

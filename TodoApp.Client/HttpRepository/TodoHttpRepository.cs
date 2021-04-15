@@ -38,7 +38,7 @@ namespace TodoApp.Client.HttpRepository
 
                 return Result<List<GetAllTodosDto>>.Failure(errors.ToList());
             }
-            
+
         }
 
         public async Task<Result> CreateTodo(CreateTodoDto model)

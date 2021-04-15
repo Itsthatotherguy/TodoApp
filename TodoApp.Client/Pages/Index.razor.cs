@@ -11,60 +11,19 @@ namespace TodoApp.Client.Pages
 {
     public partial class Index
     {
+        // di
         [Inject]
         public NavigationManager NavigationManager { get; set; }
 
         [Inject]
         public ITodoHttpRepository TodoRepository { get; set; }
 
+        // fields
         private List<GetAllTodosDto> _todoList { get; set; } = new List<GetAllTodosDto>();
         private bool _isLoading { get; set; } = true;
         private List<string> _errors = new List<string>();
 
-        //private void StartEdit(Guid id, string editCellName)
-        //{
-        //    _previousTodoInfo = _todoList.FirstOrDefault(todo => todo.Id == id).DeepCopy();
-
-        //    _editId = id;
-        //    _editCellName = editCellName;
-        //}
-
-        //private async Task StopEdit()
-        //{
-        //    var result = await UpdateTodo();
-
-        //    if (result.IsSuccess)
-        //    {                
-        //        _editCellName = null;
-        //    }
-        //    else
-        //    {
-        //        _errors = result.Errors;
-        //    }
-
-        //    StateHasChanged();
-        //}
-
-        private int SortText(string a, string b)
-        {
-            return String.Compare(a, b, StringComparison.OrdinalIgnoreCase);
-        }
-
-        private int SortDate(DateTime? a, DateTime? b)
-        {
-            if (a == null || b == null)
-            {
-                return 0;
-            }
-
-            return DateTime.Compare((DateTime)a, (DateTime)b);
-        }
-
-        private int SortBool(bool a, bool b)
-        {
-            return String.Compare(a.ToString(), b.ToString(), StringComparison.Ordinal);
-        }
-
+        // methods
         private async Task<Result> UpdateTodo(Guid id)
         {
             _isLoading = true;
@@ -119,7 +78,7 @@ namespace TodoApp.Client.Pages
             StateHasChanged();
         }
 
-        private async void MarkAsCompleted(Guid id) 
+        private async void MarkAsCompleted(Guid id)
         {
             _isLoading = true;
 
@@ -186,7 +145,7 @@ namespace TodoApp.Client.Pages
             }
 
             _isLoading = false;
-        }   
+        }
 
         //private bool TodoHasChanged(ListTodosResponseModel todo)
         //{
@@ -195,7 +154,7 @@ namespace TodoApp.Client.Pages
 
         //    return newTodoValue != oldTodoValue;
         //}
-        
+
         //private object GetPropertyValue(object instance, string propertyName)
         //{
         //    var type = instance.GetType();

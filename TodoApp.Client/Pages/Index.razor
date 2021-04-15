@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using TodoApp.Client.Components
-@using TodoApp.Models.Todo 
+@using TodoApp.Models.Todo
+@using TodoApp.Utilities.Helpers 
 
 <PageHeader Ghost="true">
     <PageHeaderExtra>
@@ -14,16 +15,16 @@
         <ErrorListAlert Errors="_errors" />
     }
     <Table TItem="GetAllTodosDto" Loading="_isLoading" DataSource="_todoList" HidePagination="true">
-        <Column @bind-Field="@context.Title" SorterCompare="SortText">
+        <Column @bind-Field="@context.Title" SorterCompare="SortingManager.SortText">
             <Text Delete="@context.IsCompleted" Disabled="@context.IsCompleted">@context.Title</Text>
         </Column>
-        <Column @bind-Field="@context.Description" SorterCompare="SortText">
+        <Column @bind-Field="@context.Description" SorterCompare="SortingManager.SortText">
             <Text Delete="@context.IsCompleted" Disabled="@context.IsCompleted">@context.Description</Text>
         </Column>
-        <Column Title="Due Date" @bind-Field="@context.DueDate" SorterCompare="SortDate">
+        <Column Title="Due Date" @bind-Field="@context.DueDate" SorterCompare="SortingManager.SortDate">
             <Text Delete="@context.IsCompleted" Disabled="@context.IsCompleted">@FormatDate(context.DueDate)</Text>
         </Column>
-        <Column Title="Completed" @bind-Field="@context.IsCompleted" SorterCompare="SortBool" Class="text-center">
+        <Column Title="Completed" @bind-Field="@context.IsCompleted" SorterCompare="SortingManager.SortBool" Class="text-center">
             <Checkbox Disabled="true" Checked="@context.IsCompleted" />
         </Column>
         <ActionColumn Class="text-right">

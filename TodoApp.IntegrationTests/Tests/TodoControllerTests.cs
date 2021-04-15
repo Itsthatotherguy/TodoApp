@@ -219,7 +219,7 @@ namespace TodoApp.IntegrationTests.Tests
 
             // Act
             var res = await _client.PutAsync($"api/Todo/{Guid.Empty}", content);
-            res.StatusCode.Should().Be(HttpStatusCode.BadRequest);            
+            res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
 
         [Fact]
@@ -353,7 +353,7 @@ namespace TodoApp.IntegrationTests.Tests
                     path = "/isCompleted",
                     op = "replace"
                 }
-            };          
+            };
 
             var content = new StringContent(
                 JsonConvert.SerializeObject(patchDoc),

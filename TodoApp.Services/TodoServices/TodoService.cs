@@ -156,7 +156,7 @@ namespace TodoApp.Services.TodoServices
             }
 
             // check for duplicate title
-            if (!string.IsNullOrWhiteSpace(dto.Title) 
+            if (!string.IsNullOrWhiteSpace(dto.Title)
                 && dto.Title != todo.Title
                 && await TitleAlreadyExists(dto.Title))
             {
